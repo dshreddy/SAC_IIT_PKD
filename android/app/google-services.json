@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "457525028134",
+    "project_id": "sac-iit-pkd",
+    "storage_bucket": "sac-iit-pkd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:457525028134:android:a530ac9a6da33747ee4de7",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHQRvhCCpISSbNEGpS3HRmf6FQ80EJQLg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
