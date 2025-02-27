@@ -4,7 +4,7 @@ import 'AuthService.dart';
 
 class AuthScreen extends StatelessWidget {
   AuthScreen({super.key});
-
+  static String id = "auth_screen";
   final AuthService _authService = AuthService();
 
   @override

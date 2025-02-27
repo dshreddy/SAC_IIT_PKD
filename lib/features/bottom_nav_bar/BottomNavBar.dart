@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../features/profile/Profile.dart';
 import '../../features/calender/Calender.dart';
 import '../../features/home/Home.dart';
-import '../../features/settings/Settings.dart';
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
+  static String id = "bottom_nav_screen";
 
   @override
   _BottomNavBarState createState() => _BottomNavBarState();
@@ -16,7 +17,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   final List<Widget> _pages = [
     HomeScreen(),
     CalenderScreen(),
-    SettingsScreen(),
+    ProfileScreen()
   ];
 
   void _onItemTapped(int index) {
