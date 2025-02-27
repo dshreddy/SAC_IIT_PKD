@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../features/calender/Calender.dart';
 import '../../features/home/Home.dart';
 import '../../features/settings/Settings.dart';
 
@@ -14,6 +15,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
   final List<Widget> _pages = [
     HomeScreen(),
+    CalenderScreen(),
     SettingsScreen(),
   ];
 
@@ -27,6 +29,20 @@ class _BottomNavBarState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text("SAC"),
+          // actions: [
+          //   Tooltip(
+          //     message: 'Notifications',
+          //     child: IconButton(
+          //       icon: const Icon(Icons.notifications),
+          //       selectedIcon: const Icon(Icons.brightness_2_outlined),
+          //       onPressed: () {  },
+          //     ),
+          //   )
+          // ],
+        ),
         body: _pages[_selectedIndex],
         bottomNavigationBar: BottomNavigationBar(
           items: const [
@@ -35,8 +51,12 @@ class _BottomNavBarState extends State<BottomNavBar> {
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
+              icon: Icon(Icons.calendar_month),
+              label: 'Calender',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
             ),
           ],
           currentIndex: _selectedIndex,
