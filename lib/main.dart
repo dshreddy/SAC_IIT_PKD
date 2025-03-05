@@ -6,9 +6,11 @@ import 'package:flutter_application_1/features/home/councils/Research.dart';
 import 'package:flutter_application_1/features/home/councils/SGS.dart';
 import 'package:flutter_application_1/features/home/councils/Sports.dart';
 import 'package:flutter_application_1/features/home/councils/Technical.dart';
-import 'package:flutter_application_1/features/GPACalculator/GPACalculator.dart';
+import 'package:flutter_application_1/features/GPACalculator/UI.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 import 'firebase_options.dart';
 
@@ -22,6 +24,7 @@ import '../features/profile/Profile.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -42,8 +45,8 @@ class MyApp extends StatelessWidget {
             theme: ThemeData.light(),
             darkTheme: ThemeData.dark(),
             themeMode: themeProvider.themeMode,
-            initialRoute: AuthScreen.id,
-            // initialRoute: GPACalculatorScreen.id,
+            // initialRoute: AuthScreen.id,
+            initialRoute: GPACalculatorScreen.id,
             routes: {
               // Auth
               AuthScreen.id: (context) => AuthScreen(),

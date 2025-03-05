@@ -1,68 +1,95 @@
-import 'dart:io';
+import 'Course.dart';
 
-import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:syncfusion_flutter_pdf/pdf.dart';
+class GPACalculator{
+  /*
+          Refer B.Tech Regulations 24.2 - 24.9 for more info : https://iitpkd.ac.in/programs
+  * */
+  final Map<String, int> gradePointMap = {
+    "S": 10, "A": 9, "B": 8, "C": 7, "D": 6, "E": 4,
+    "U": 0, "W": 0, "I": 0, "Y": 0, "N": 0, "P": 0, "F": 0,
+  };
+  final Map<String, int> electiveCatReqCredits = {
+    "PME": 0, "SME": 0, "GCE": 0, "HSE": 0, "OE": 0
+  };
 
-import 'ProcessExtractedText.dart';
-
-class GPACalculatorScreen extends StatefulWidget {
-  const GPACalculatorScreen({super.key});
-  static String id = "gpa_calc_screen";
-
-  @override
-  _GPACalculatorScreenState createState() => _GPACalculatorScreenState();
-}
-
-class _GPACalculatorScreenState extends State<GPACalculatorScreen> {
   Map<int, List<Course>> _semesterCourses = {};
-  ProcessExtractedText _processor = ProcessExtractedText("");
+  double CGPA = 0.0;
+  Map<int, double> semesterGPA = {};
 
-  Future<void> pickAndExtractPDF() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-    );
+  GPACalculator(this._semesterCourses) {
+    _calculateSGPA();
+    _calculateCGPA();
+  }
 
-    if (result != null && result.files.single.path != null) {
-      // Read file bytes
-      File file = File(result.files.single.path!);
-      List<int> bytes = await file.readAsBytes();
+  // All the courses done in the semester (even courses with U/I/W) will be considered for SGPA calculation
+  void _calculateSGPA() {
+    semesterGPA.clear();
 
-      // Load the PDF document
-      final PdfDocument document = PdfDocument(inputBytes: bytes);
+    _semesterCourses.forEach((semester, courses) {
+      double totalCredits = 0;
+      double weightedGradePoints = 0;
 
-      //Extract the text from all the pages.
-      String text = PdfTextExtractor(document).extractText();
-      //Dispose the document.
-      document.dispose();
-      _processor = ProcessExtractedText(text);
-      _processor.printCourses();
-      _semesterCourses = _processor.semesterCourses;
+      for (var course in courses) {
+        if(course.grade == "P" || course.grade == "F" || course.grade == "Y" || course.grade == "N") continue;
+        double? gradePoint = gradePointMap[course.grade]?.toDouble();
+        double credits = double.tryParse(course.credits.toString()) ?? 0.0;
+        if (gradePoint != null) {
+          totalCredits += credits;
+          weightedGradePoints += gradePoint * credits;
+        }
+      }
+
+      semesterGPA[semester] = totalCredits > 0 ? weightedGradePoints / totalCredits : 0.0;
+    });
+  }
+
+  void _calculateCGPA() {
+    double totalCredits = 0;
+    double weightedGradePoints = 0;
+
+    List<Course> allCourses = _semesterCourses.values.expand((e) => e).toList();
+    allCourses = _removeDuplicateFailedCourses(allCourses);
+
+    for (var course in allCourses) {
+      if(course.grade == "P" || course.grade == "F" || course.grade == "Y" || course.grade == "N") continue;
+      double gradePoint = gradePointMap[course.grade]?.toDouble() ?? 0;
+      double credits = double.tryParse(course.credits.toString()) ?? 0.0;
+      if(gradePoint == 0 && _isElective(course)) {
+        // Electives with fail grade will be ignored in CGPA calculation
+        continue;
+      }
+      totalCredits += credits;
+      weightedGradePoints += gradePoint * credits;
     }
+
+    CGPA = totalCredits > 0 ? weightedGradePoints / totalCredits : 0.0;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("GPA Calculator"),
-          centerTitle: true,
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ElevatedButton(
-                onPressed: pickAndExtractPDF,
-                child: const Text("Select PDF"),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+
+  List<Course> _removeDuplicateFailedCourses(List<Course> courses) {
+    Map<String, Course> uniqueCourses = {};
+
+    for (var curr in courses) {
+      if (uniqueCourses.containsKey(curr.code)) {
+        Course prev = uniqueCourses[curr.code]!;
+
+        // Keep the course with the higher grade
+        if (gradePointMap[prev.grade]! < gradePointMap[curr.grade]!) {
+          uniqueCourses[curr.code] = curr;
+        }
+      } else {
+        // First occurrence of the course
+        uniqueCourses[curr.code] = curr;
+      }
+    }
+
+    return uniqueCourses.values.toList();
   }
+
+  bool _isElective(Course course) {
+    return electiveCatReqCredits.containsKey(course.category);
+  }
+
+  double getSGPA(int semester) => semesterGPA[semester] ?? 0.0;
+  double getCGPA() => CGPA;
 }
